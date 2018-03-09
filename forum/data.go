@@ -57,9 +57,18 @@ func GetPostsFromPage(page string, topic string) ([]Post, error) {
 		// if err != nil {
 		// 	log.Fatal(err)
 		// }
-		message := s.Find(".postBody").Text()
-		message = strings.Replace(message, `\n`, "\n", -1)
-		posts = append(posts, Post{driver, message})
+		message := s.Find(".postBody")
+
+		id, _ := message.Attr("id")
+		id = strings.TrimPrefix(id, "message")
+
+		text := strings.Replace(message.Text(), `\n`, "\n", -1)
+		text = strings.Replace(text, "\r", "", -1)
+		text = strings.Replace(text, "\t", "", -1)
+		text = strings.TrimSpace(text)
+		text = strings.ToLower(text) // lowercase track names
+
+		posts = append(posts, Post{id, driver, text})
 	})
 	return posts, nil
 }

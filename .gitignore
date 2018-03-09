@@ -15,3 +15,7 @@
 
 # binaries
 scoring
+
+# output
+output/*.txt
+output/*.csv
