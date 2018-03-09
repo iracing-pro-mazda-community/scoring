@@ -28,6 +28,8 @@ func Get() (*Configuration, error) {
 	// lowercase track names
 	for t := range configuration.Tracks {
 		configuration.Tracks[t] = strings.ToLower(configuration.Tracks[t])
+		configuration.Tracks[t] = strings.Replace(configuration.Tracks[t], "-", " ", -1)
+		configuration.Tracks[t] = strings.Replace(configuration.Tracks[t], "_", " ", -1)
 	}
 
 	return &configuration, nil

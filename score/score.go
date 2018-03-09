@@ -5,14 +5,19 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/iracing-pro-mazda-community/scoring/config"
 	"github.com/iracing-pro-mazda-community/scoring/forum"
+	"github.com/renstrom/fuzzysearch/fuzzy"
 	"github.com/schollz/closestmatch"
 )
 
-var cfg *config.Configuration
+var (
+	cfg   *config.Configuration
+	score map[string]int
+)
 
 func init() {
 	var err error
@@ -20,6 +25,12 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	score = make(map[string]int, 0)
+}
+
+func Print() {
+	log.Printf("%#v\n", score)
 }
 
 func Match() error {
@@ -28,19 +39,37 @@ func Match() error {
 		return err
 	}
 
-	cm := closestmatch.New(cfg.Tracks, []int{2, 3})
+	return FuzzySearch(cfg.Tracks, posts)
+}
+
+func FuzzySearch(tracks []string, posts []forum.Post) error {
 	for _, post := range posts {
 		scanner := bufio.NewScanner(strings.NewReader(post.Message))
 		for scanner.Scan() {
 			text := strings.TrimSpace(scanner.Text())
 			if len(strings.Fields(text)) <= 3 {
 				if len(text) > 0 {
-					log.Printf("%s: [%s] - %#v\n", post.Name, text, cm.Closest(text))
+					// try to find matches and ranking them using Levenshtein distance
+					matches := fuzzy.RankFindFold(text, tracks)
+					if len(matches) > 0 {
+						// sort them by Levenshtein distance, pick winner
+						sort.Sort(matches)
+						log.Printf("DIRECTLY_MATCHED: %s: [%s] - %#v\n", post.Name, text, matches[0])
+						score[matches[0].Target] = score[matches[0].Target] + 1
+					} else {
+						// no matches, try again with bag-of-words approach
+						ClosestMatch(tracks, text, post)
+					}
 				}
 			}
 		}
 	}
 	return nil
+}
+
+func ClosestMatch(tracks []string, text string, post forum.Post) {
+	cm := closestmatch.New(tracks, []int{2, 3})
+	log.Printf("CLOSEST_MATCH: %s: [%s] - %#v\n", post.Name, text, cm.Closest(text))
 }
 
 func GetOutput() ([]forum.Post, error) {

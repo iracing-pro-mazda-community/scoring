@@ -1,10 +1,12 @@
-hash: 858440e74ff7460ecfe2f06b4ced0a2eaa58539a61456e4adc5bcb9c396379ea
-updated: 2018-03-09T20:16:53.144547955+01:00
+hash: 19fc6fce037753ed14098cf5484a9aee2eddf2095a15599973d32a632bc07ba0
+updated: 2018-03-09T23:14:14.755630442+01:00
 imports:
 - name: github.com/andybalholm/cascadia
   version: 901648c87902174f774fac311d7f176f8647bdaa
 - name: github.com/PuerkitoBio/goquery
   version: 09540e565986583836b5fc792fe951ec5fd201dd
+- name: github.com/renstrom/fuzzysearch
+  version: d4ca9dfccd55dc6b076f9880d49c35315922c1f4
 - name: github.com/schollz/closestmatch
   version: 56fb6b15a5e88fbcbc21b196488e749fc176514c
 - name: golang.org/x/net

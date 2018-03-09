@@ -67,6 +67,8 @@ func GetPostsFromPage(page string, topic string) ([]Post, error) {
 		text = strings.Replace(text, "\t", "", -1)
 		text = strings.TrimSpace(text)
 		text = strings.ToLower(text) // lowercase track names
+		text = strings.Replace(text, "-", " ", -1)
+		text = strings.Replace(text, "_", " ", -1)
 
 		posts = append(posts, Post{id, driver, text})
 	})
