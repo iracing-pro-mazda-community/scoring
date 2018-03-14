@@ -45,6 +45,7 @@ func main() {
 		if err := score.Match(); err != nil {
 			log.Fatal(err)
 		}
+		score.Validate()
 		score.Print()
 	}
 }
