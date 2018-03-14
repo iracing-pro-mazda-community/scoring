@@ -1,10 +1,13 @@
 package forum
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -70,7 +73,20 @@ func GetPostsFromPage(page string, topic string) ([]Post, error) {
 		text = strings.Replace(text, "-", " ", -1)
 		text = strings.Replace(text, "_", " ", -1)
 
-		posts = append(posts, Post{id, driver, text})
+		// go through, validate for vote and trim line by line
+		var votes string
+		rx := regexp.MustCompile(`^[[:space:]]*[0-9A-Za-zü_\- \(\)]+[[:space:]]*,?[[:space:]]*[0-4]?[0-9]+[[:space:]]*$`)
+		scanner := bufio.NewScanner(strings.NewReader(text))
+		for scanner.Scan() {
+			vote := strings.TrimSpace(scanner.Text())
+			if rx.MatchString(vote) {
+				votes += fmt.Sprintf("%s\n", vote)
+			} else {
+				log.Printf("Not a valid vote by [%s]: %s\n", driver, vote)
+			}
+		}
+
+		posts = append(posts, Post{id, driver, votes})
 	})
 	return posts, nil
 }

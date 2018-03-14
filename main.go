@@ -19,12 +19,12 @@ func init() {
 }
 
 func main() {
-	if err := forum.Login(); err != nil {
-		log.Fatal(err)
-	}
-
 	// download/update votes
 	if cfg.Download {
+		if err := forum.Login(); err != nil {
+			log.Fatal(err)
+		}
+
 		log.Println("Download voting data ...")
 		posts, err := forum.GetAllPosts(cfg.Topic)
 		if err != nil {
