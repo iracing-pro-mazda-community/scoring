@@ -10,6 +10,7 @@ type Configuration struct {
 	Topic    string
 	Tracks   []string
 	Download bool
+	Score    bool
 }
 
 func Get() (*Configuration, error) {

@@ -40,9 +40,11 @@ func main() {
 	}
 
 	// match votes
-	log.Println("Score votes ...")
-	if err := score.Match(); err != nil {
-		log.Fatal(err)
+	if cfg.Score {
+		log.Println("Score votes ...")
+		if err := score.Match(); err != nil {
+			log.Fatal(err)
+		}
+		score.Print()
 	}
-	score.Print()
 }
