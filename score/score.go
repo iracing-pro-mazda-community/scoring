@@ -2,6 +2,7 @@ package score
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"path/filepath"
@@ -19,7 +20,7 @@ import (
 var (
 	cfg   *config.Configuration
 	score map[string]map[string]int64
-	rx    = regexp.MustCompile(`^[[:space:]]*([0-9A-Za-zü_\- \(\)]+)[[:space:]]*,?[[:space:]]*([0-4]?[0-9]+)[[:space:]]*$`)
+	rx    = regexp.MustCompile(`^[[:space:]]*([0-9A-Za-zü_\- \(\)]+)[[:space:]]*[, ]+[[:space:]]*([0-4]?[0-9]+)[[:space:]]*$`)
 )
 
 func init() {
@@ -35,7 +36,7 @@ func init() {
 func Print() {
 	//log.Printf("%#v\n", score)
 	ranking := make(map[string]int64, 0)
-	for _, values := range score {
+	for driver, values := range score {
 		// go through tracks, if any is missing assign it maximum value to prevent skew
 		for _, track := range cfg.Tracks {
 			var found bool
@@ -46,6 +47,7 @@ func Print() {
 				}
 			}
 			if !found {
+				log.Printf("%s not voted on by %s", track, driver)
 				ranking[track] = ranking[track] + int64(len(cfg.Tracks))
 			}
 		}
@@ -61,7 +63,7 @@ func Print() {
 	for _, value := range values {
 		for track, score := range ranking {
 			if score == int64(value) {
-				log.Printf("#%d: %s - [%d]\n", i, track, score)
+				fmt.Printf("#%d: %s - [%d]\n", i, track, score)
 			}
 		}
 		i++
