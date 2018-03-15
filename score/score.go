@@ -34,19 +34,28 @@ func init() {
 }
 
 func Print() {
-	//log.Printf("%#v\n", score)
+	// csv header
+	WriteToCSV(append([]string{"Driver"}, cfg.Tracks...))
+
+	// sorted list of drivers
+	var drivers []string
+	for driver, _ := range score {
+		drivers = append(drivers, driver)
+	}
+	sort.Sort(sort.StringSlice(drivers))
+
 	ranking := make(map[string]int64, 0)
-	for driver, values := range score {
+	for _, driver := range drivers {
+		values := score[driver]
+
+		// export to csv
+		WriteScoreToCSV(driver, values)
+
 		// go through tracks, if any is missing assign it maximum value to prevent skew
 		for _, track := range cfg.Tracks {
-			var found bool
-			for key, value := range values {
-				if key == track {
-					ranking[track] = ranking[track] + value
-					found = true
-				}
-			}
-			if !found {
+			if value, ok := values[track]; ok {
+				ranking[track] = ranking[track] + value
+			} else {
 				log.Printf("%s not voted on by %s", track, driver)
 				ranking[track] = ranking[track] + int64(len(cfg.Tracks))
 			}
@@ -156,7 +165,7 @@ func GetOutput() ([]forum.Post, error) {
 	}
 
 	for _, file := range files {
-		if file.Name() == ".gitkeep" {
+		if file.Name() == ".gitkeep" || file.Name() == "result.csv" {
 			continue
 		}
 
