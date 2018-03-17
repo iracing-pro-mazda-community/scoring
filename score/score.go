@@ -165,12 +165,13 @@ func GetOutput() ([]forum.Post, error) {
 	}
 
 	for _, file := range files {
-		if file.Name() == ".gitkeep" || file.Name() == "result.csv" {
+		filename := file.Name()
+		if file.Name() == ".gitkeep" || filename == "result.csv" || filename == "output.txt" {
 			continue
 		}
 
 		values := strings.SplitN(file.Name(), " - ", -1)
-		data, err := ioutil.ReadFile(filepath.Join("output", file.Name()))
+		data, err := ioutil.ReadFile(filepath.Join("output", filename))
 		if err != nil {
 			return nil, err
 		}
