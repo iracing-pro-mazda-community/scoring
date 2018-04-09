@@ -20,7 +20,7 @@ import (
 var (
 	cfg   *config.Configuration
 	score map[string]map[string]int64
-	rx    = regexp.MustCompile(`^[[:space:]]*([0-9A-Za-zü_\- \(\)]+)[[:space:]]*[, ]+[[:space:]]*([0-4]?[0-9]+)[[:space:]]*$`)
+	rx    = regexp.MustCompile(`^[[:space:] ]*([0-9A-Za-zü_\- \(\)]+)[[:space:] ]*[,  ]+[[:space:] ]*([0-4]?[0-9]+)[[:space:] ]*$`)
 )
 
 func init() {
