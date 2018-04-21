@@ -2,36 +2,46 @@ package config
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 	"strings"
+	"sync"
+)
+
+var (
+	cfg  *Configuration = nil
+	once sync.Once
 )
 
 type Configuration struct {
-	Topic    string
-	Tracks   []string
-	Download bool
-	Score    bool
+	Topic         string
+	Tracks        []string
+	Download      bool
+	Score         bool
+	OverwriteVote bool `json:"overwrite_vote"`
 }
 
-func Get() (*Configuration, error) {
-	file, err := os.Open("configuration.json")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+func Get() *Configuration {
+	once.Do(func() {
+		cfg = &Configuration{}
 
-	decoder := json.NewDecoder(file)
-	configuration := Configuration{}
-	if err := decoder.Decode(&configuration); err != nil {
-		return nil, err
-	}
+		file, err := os.Open("configuration.json")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
 
-	// lowercase track names
-	for t := range configuration.Tracks {
-		configuration.Tracks[t] = strings.ToLower(configuration.Tracks[t])
-		configuration.Tracks[t] = strings.Replace(configuration.Tracks[t], "-", " ", -1)
-		configuration.Tracks[t] = strings.Replace(configuration.Tracks[t], "_", " ", -1)
-	}
+		decoder := json.NewDecoder(file)
+		if err := decoder.Decode(cfg); err != nil {
+			log.Fatal(err)
+		}
 
-	return &configuration, nil
+		// lowercase track names
+		for t := range cfg.Tracks {
+			cfg.Tracks[t] = strings.ToLower(cfg.Tracks[t])
+			cfg.Tracks[t] = strings.Replace(cfg.Tracks[t], "-", " ", -1)
+			cfg.Tracks[t] = strings.Replace(cfg.Tracks[t], "_", " ", -1)
+		}
+	})
+	return cfg
 }

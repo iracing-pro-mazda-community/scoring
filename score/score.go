@@ -18,24 +18,13 @@ import (
 )
 
 var (
-	cfg   *config.Configuration
-	score map[string]map[string]int64
+	score = make(map[string]map[string]int64, 0)
 	rx    = regexp.MustCompile(`^[[:space:] ]*([0-9A-Za-zü_\- \(\)]+)[[:space:] ]*[,  ]+[[:space:] ]*([0-4]?[0-9]+)[[:space:] ]*$`)
 )
 
-func init() {
-	var err error
-	cfg, err = config.Get()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	score = make(map[string]map[string]int64, 0)
-}
-
 func Print() {
 	// csv header
-	WriteToCSV(append([]string{"Driver"}, cfg.Tracks...))
+	WriteToCSV(append([]string{"Driver"}, config.Get().Tracks...))
 
 	// sorted list of drivers
 	var drivers []string
@@ -52,12 +41,12 @@ func Print() {
 		WriteScoreToCSV(driver, values)
 
 		// go through tracks, if any is missing assign it maximum value to prevent skew
-		for _, track := range cfg.Tracks {
+		for _, track := range config.Get().Tracks {
 			if value, ok := values[track]; ok {
 				ranking[track] = ranking[track] + value
 			} else {
 				log.Printf("%s not voted on by %s", track, driver)
-				ranking[track] = ranking[track] + int64(len(cfg.Tracks))
+				ranking[track] = ranking[track] + int64(len(config.Get().Tracks))
 			}
 		}
 	}
@@ -107,7 +96,7 @@ func Match() error {
 		return err
 	}
 
-	return FuzzySearch(cfg.Tracks, posts)
+	return FuzzySearch(config.Get().Tracks, posts)
 }
 
 func FuzzySearch(tracks []string, posts []forum.Post) error {
